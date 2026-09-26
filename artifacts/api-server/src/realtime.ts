@@ -92,6 +92,7 @@ function touch(room: Room) {
   room.lastActivity = Date.now();
 }
 
+// Socket.IO ACK callbacks are optional because clients may emit fire-and-forget events.
 export function createRealtimeServer(httpServer: HttpServer) {
   const io = new SocketIOServer(httpServer, {
     path: "/api/socket.io",
