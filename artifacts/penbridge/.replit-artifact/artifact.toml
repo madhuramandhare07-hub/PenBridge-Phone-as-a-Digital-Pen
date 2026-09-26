@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "PenBridge"
+description = "A real-time whiteboard that turns a phone into a writing pad for a non-touchscreen laptop. Create or join rooms, scan a QR code, draw with touch or stylus, and see strokes appear instantly across devices."
+version = "1.0.0"
+id = "artifacts/penbridge"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/", "/api/socket.io" ]
+localPort = 21996
+
+[services.development]
+run = "pnpm --filter @workspace/penbridge run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/penbridge", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/penbridge/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21996"
+BASE_PATH = "/"
