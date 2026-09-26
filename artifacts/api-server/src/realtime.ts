@@ -147,9 +147,13 @@ export function createRealtimeServer(httpServer: HttpServer) {
           return;
         }
 
+        const existingSocketId = role === "laptop" ? room.laptopSocketId : room.phoneSocketId;
+        const existingSocketIsAlive =
+          Boolean(existingSocketId) && io.sockets.sockets.has(existingSocketId!);
         const occupied =
-          (role === "laptop" && room.laptopSocketId && room.laptopSocketId !== socket.id) ||
-          (role === "phone" && room.phoneSocketId && room.phoneSocketId !== socket.id);
+          Boolean(existingSocketId) &&
+          existingSocketId !== socket.id &&
+          existingSocketIsAlive;
         if (occupied) {
           ack({
             ok: false,
