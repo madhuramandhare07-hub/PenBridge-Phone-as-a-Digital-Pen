@@ -104,7 +104,8 @@ export function createRealtimeServer(httpServer: HttpServer) {
   io.on("connection", (socket) => {
     socket.on(
       "room:create",
-      (ack: Ack<RoomResponse>) => {
+      (ack?: Ack<RoomResponse>) => {
+        const respond: Ack<RoomResponse> = typeof ack === "function" ? ack : () => {};
         const code = createRoomCode();
         const room: Room = {
           code,
@@ -119,7 +120,7 @@ export function createRealtimeServer(httpServer: HttpServer) {
         socket.data.roomCode = code;
         socket.data.role = "laptop";
         void socket.join(code);
-        ack({ ok: true, code, ...getStatus(room), strokes: [] });
+        respond({ ok: true, code, ...getStatus(room), strokes: [] });
       },
     );
 
