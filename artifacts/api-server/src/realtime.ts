@@ -126,11 +126,12 @@ export function createRealtimeServer(httpServer: HttpServer) {
 
     socket.on(
       "room:join",
-      (payload: JoinPayload, ack: Ack<RoomResponse>) => {
+      (payload: JoinPayload, ack?: Ack<RoomResponse>) => {
+        const respond: Ack<RoomResponse> = typeof ack === "function" ? ack : () => {};
         const code = payload?.code?.trim().toUpperCase();
         const role = payload?.role;
         if (!CODE_PATTERN.test(code) || (role !== "laptop" && role !== "phone")) {
-          ack({
+          respond({
             ok: false,
             error: "INVALID_CODE",
             message: "Enter a six-character room code.",
@@ -140,7 +141,7 @@ export function createRealtimeServer(httpServer: HttpServer) {
 
         const room = rooms.get(code);
         if (!room) {
-          ack({
+          respond({
             ok: false,
             error: "ROOM_NOT_FOUND",
             message: "That room is no longer available.",
@@ -156,7 +157,7 @@ export function createRealtimeServer(httpServer: HttpServer) {
           existingSocketId !== socket.id &&
           existingSocketIsAlive;
         if (occupied) {
-          ack({
+          respond({
             ok: false,
             error: "ROOM_FULL",
             message: `This room already has a ${role} connected.`,
@@ -178,7 +179,7 @@ export function createRealtimeServer(httpServer: HttpServer) {
         touch(room);
         void socket.join(code);
 
-        ack({ ok: true, code, ...getStatus(room), strokes: room.strokes });
+        respond({ ok: true, code, ...getStatus(room), strokes: room.strokes });
         socket.emit("canvas:state", { strokes: room.strokes });
         sendStatus(io, room);
       },
