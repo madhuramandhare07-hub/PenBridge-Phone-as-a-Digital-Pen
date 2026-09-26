@@ -39,7 +39,12 @@ export function usePenBridgeSocket(room?: string, role: 'laptop' | 'phone' = 'ph
     const onConnect = () => {
       setConnection('connected');
       if (room) {
-        socket.emit('room:join', { code: room, role });
+        socket.emit('room:join', { code: room, role }, (response) => {
+          const result = response as { ok?: boolean; message?: string };
+          if (!result.ok) {
+            console.error('PenBridge room join failed:', result.message);
+          }
+        });
       }
     };
     const onDisconnect = () => setConnection('disconnected');
