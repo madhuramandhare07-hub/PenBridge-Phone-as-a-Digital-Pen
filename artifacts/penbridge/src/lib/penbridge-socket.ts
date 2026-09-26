@@ -36,7 +36,12 @@ export function usePenBridgeSocket(room?: string, role: 'laptop' | 'phone' = 'ph
     });
     socketRef.current = socket;
     setSocket(socket);
-    const onConnect = () => setConnection('connected');
+    const onConnect = () => {
+      setConnection('connected');
+      if (room) {
+        socket.emit('room:join', { code: room, role });
+      }
+    };
     const onDisconnect = () => setConnection('disconnected');
     const onError = () => setConnection('error');
     const onPresence = (payload: RoomStatus) =>
@@ -45,7 +50,6 @@ export function usePenBridgeSocket(room?: string, role: 'laptop' | 'phone' = 'ph
     socket.on('disconnect', onDisconnect);
     socket.on('connect_error', onError);
     socket.on('room:status', onPresence);
-    if (room) socket.emit('room:join', { code: room, role });
     return () => {
       if (room) socket.emit('room:leave');
       socket.off('connect', onConnect);
