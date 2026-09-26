@@ -29,7 +29,11 @@ export function usePenBridgeSocket(room?: string, role: 'laptop' | 'phone' = 'ph
       setSocket(null);
       return;
     }
-    const socket = io(socketUrl, { transports: ['websocket', 'polling'], autoConnect: true });
+    const socket = io(socketUrl, {
+      path: '/api/socket.io',
+      transports: ['websocket', 'polling'],
+      autoConnect: true,
+    });
     socketRef.current = socket;
     setSocket(socket);
     const onConnect = () => setConnection('connected');
